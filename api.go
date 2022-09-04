@@ -3,7 +3,6 @@ package gomemes
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"math/rand"
 	"net/http"
 	"strings"
@@ -69,9 +68,8 @@ func getMeme(subreddit string) (*Meme, error) {
 		return nil, err
 	}
 
-	req.Header.Set("User-Agent", userAgent)
+	req.Header.Set("user-agent", userAgent)
 
-	log.Printf("executing request to %s\n", url)
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return nil, err
@@ -88,15 +86,11 @@ func getMeme(subreddit string) (*Meme, error) {
 		return nil, err
 	}
 
-	log.Printf("retrieved a total of %d posts", len(posts.Kind.Data.Children))
-
-	log.Print("filtering posts...\n")
 	validPosts := filterPosts(posts)
 
 	if len(validPosts) < 1 {
 		return nil, fmt.Errorf("not found memes in %s", subreddit)
 	}
-	log.Printf("got %d valid posts of %d\n", len(validPosts), len(posts.Kind.Data.Children))
 
 	meme := parsePostDataToMeme(validPosts[rand.Intn(len(validPosts))])
 
