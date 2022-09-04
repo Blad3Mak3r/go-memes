@@ -2,17 +2,17 @@ package gomemes
 
 // Meme
 type Meme struct {
-	ID         string `json:"id"`
-	Subreddit  string `json:"subreddit"`
-	Title      string `json:"title"`
-	Author     string `json:"author"`
-	Image      string `json:"image"`
-	Ups        int    `json:"ups"`
-	Downs      int    `json:"downs"`
-	Score      int    `json:"score"`
-	Comments   int    `json:"comments"`
-	NSFW       bool   `json:"nsfw"`
-	CreatedUTC int64  `json:"createdUtc"`
+	ID         string  `json:"id"`
+	Subreddit  string  `json:"subreddit"`
+	Title      string  `json:"title"`
+	Author     string  `json:"author"`
+	Image      string  `json:"image"`
+	Ups        int     `json:"ups"`
+	Downs      int     `json:"downs"`
+	Score      int     `json:"score"`
+	Comments   int     `json:"comments"`
+	NSFW       bool    `json:"nsfw"`
+	CreatedUTC float64 `json:"createdUtc"`
 }
 
 var Subreddits = []string{

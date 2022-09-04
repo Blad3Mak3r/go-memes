@@ -1,6 +1,7 @@
 package gomemes
 
 import (
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"math/rand"
@@ -18,36 +19,43 @@ var (
 		".gif",
 		".webp",
 	}
+
+	httpClient = &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{
+				MaxVersion: tls.VersionTLS12,
+			},
+		},
+	}
 )
 
 const (
-	userAgent = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36"
+	userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36 Edg/91.0.864.59"
 )
 
 type Posts struct {
-	Kind struct {
-		Data struct {
-			Children []struct {
-				Kind string   `json:"kind"`
-				Data PostData `json:"data"`
-			} `json:"children"`
-		} `json:"data"`
-	} `json:"kind"`
+	Kind string `json:"kind"`
+	Data struct {
+		Children []struct {
+			Kind string   `json:"kind"`
+			Data PostData `json:"data"`
+		} `json:"children"`
+	} `json:"data"`
 }
 
 type PostData struct {
-	ID             string `json:"id"`
-	Subreddit      string `json:"subreddit"`
-	AuthorFullname string `json:"author_fullname"`
-	Title          string `json:"title"`
-	Downs          int    `json:"downs"`
-	Ups            int    `json:"ups"`
-	Score          int    `json:"score"`
-	Over18         bool   `json:"over_18"`
-	Permaling      string `json:"permalink"`
-	Url            string `json:"url"`
-	Comments       int    `json:"num_comments"`
-	CreatedUTC     int64  `json:"created_utc"`
+	ID             string  `json:"id"`
+	Subreddit      string  `json:"subreddit"`
+	AuthorFullname string  `json:"author_fullname"`
+	Title          string  `json:"title"`
+	Downs          int     `json:"downs"`
+	Ups            int     `json:"ups"`
+	Score          int     `json:"score"`
+	Over18         bool    `json:"over_18"`
+	Permaling      string  `json:"permalink"`
+	Url            string  `json:"url"`
+	Comments       int     `json:"num_comments"`
+	CreatedUTC     float64 `json:"created_utc"`
 }
 
 // GetRandomMemeFromSubreddit retrieve a random meme from the given subreddit
@@ -69,8 +77,11 @@ func getMeme(subreddit string) (*Meme, error) {
 	}
 
 	req.Header.Set("user-agent", userAgent)
+	req.Header.Set("accept", "application/json")
 
-	res, err := http.DefaultClient.Do(req)
+	fmt.Printf("user-agent is %s\n", req.UserAgent())
+
+	res, err := httpClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -113,7 +124,7 @@ func isPostWithImage(data PostData) bool {
 func filterPosts(posts Posts) []PostData {
 	list := []PostData{}
 
-	for _, post := range posts.Kind.Data.Children {
+	for _, post := range posts.Data.Children {
 		if isPostWithImage(post.Data) {
 			list = append(list, post.Data)
 		}
